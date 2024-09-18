@@ -1,6 +1,28 @@
+import { useState } from "react";
 import List from "./component/List";
 
 function App() {
+  const [allTodo, setAllTodo] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+
+  const addTodo = () => {
+    if (!inputValue.trim()) {
+      return;
+    }
+    setAllTodo([...allTodo, { text: inputValue, isComplete: false }]);
+    setInputValue("");
+  };
+
+  const editTodo = (index, newValue) => {
+    const newTodo = allTodo.map((eachTodo, i) => {
+      // Return the updated todo when the index matches, otherwise return the original todo
+      if (i === index) {
+        return { ...eachTodo, text: newValue }; // Update the text field with the new value
+      }
+      return eachTodo; // Return the original todo for non-matching indexes
+    });
+    setAllTodo(newTodo);
+  };
   return (
     <div className="bg-white shadow-sm shadow-black md:mx-80 mx-4 md:mt-10 mt-20 pb-10 ">
       <div className="mx-8 ">
@@ -14,8 +36,19 @@ function App() {
         </div>
         <hr className="mt-4" />
         <h1 className="text-center text-xl p-2">What needs to be done?</h1>
-        <input type="text" className="w-full h-12 border-2 border-blue-200 " />
-        <button className="w-full bg-blue-300 mt-2 p-2 font-bold">Add</button>
+        <input
+          type="text"
+          className="w-full h-12 border-2 border-blue-200 "
+          placeholder="What needs to be done?"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+        />
+        <button
+          className="w-full bg-blue-300 mt-2 p-2 font-bold"
+          onClick={addTodo}
+        >
+          Add
+        </button>
 
         <div className="flex mx-6 mt-2 justify-between gap-2 ">
           <button className="border border-blue-200 w-full p-1">All</button>
@@ -26,9 +59,15 @@ function App() {
         </div>
 
         <h1 className="font-bold mt-4 mx-6 text-xl">3 tasks remaining</h1>
-        <List todo="sleep" />
-        <List todo="sleep again" />
-        <List todo="sleep again you need it" />
+        <div>
+          {allTodo.map((eachTodo, index) => (
+            <List
+              key={index}
+              todo={eachTodo.text}
+              onEdit={(newValue) => editTodo(index, newValue)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
